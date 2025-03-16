@@ -2,6 +2,10 @@ package com.futuretech.controller;
 
 import com.futuretech.annotation.LimitType;
 import com.futuretech.annotation.RateLimit;
+import com.futuretech.generator.UserIdGenerator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -12,6 +16,10 @@ import java.util.concurrent.TimeUnit;
 @RestController
 @RequestMapping("/api/test")
 public class TestController {
+
+    private static final Logger log = LoggerFactory.getLogger(TestController.class);
+    @Autowired
+    private UserIdGenerator userIdGenerator;
 
     @GetMapping("/limit1")
     @RateLimit(count = 3, period = 5, timeUnit = TimeUnit.SECONDS, description = "默认限流")
@@ -41,5 +49,14 @@ public class TestController {
     @RateLimit(count = 4, period = 5, type = LimitType.PATH, description = "路径限流")
     public String testPathLimit() {
         return "Success - Path Limit";
+    }
+
+    @GetMapping("/test")
+    public void say(String channel, Long count) {
+        for (int i = 0; i < count; i++) {
+            String s = userIdGenerator.generateUserId(channel);
+            log.info("第{}次生成的userId为{}", i, s);
+        }
+
     }
 }
